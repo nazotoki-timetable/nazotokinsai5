@@ -544,10 +544,10 @@
         }
       }
       if (id) {
-        if (asThumbnail) {
-          return `https://drive.google.com/thumbnail?id=${id}&sz=w1000`;
-        }
-        return `https://drive.google.com/uc?export=view&id=${id}`;
+        // 2024年のセキュリティアップデート以降、uc?export=view はサードパーティークッキー制限やウィルス警告画面への遷移のため画像として表示されません。
+        // 代替として、高解像度の thumbnail エンドポイントを使用することで、安定してインライン表示・背景画像指定が可能です。
+        const size = asThumbnail ? "w1000" : "w2000";
+        return `https://drive.google.com/thumbnail?id=${id}&sz=${size}`;
       }
       return url;
     }
