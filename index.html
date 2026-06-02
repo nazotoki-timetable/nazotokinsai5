@@ -523,6 +523,35 @@
     const API_URL = 'https://script.google.com/macros/s/AKfycbx8A5fjUJdzm5FQHFXCeiQp537m4MZcUjT_TKG7OndsS9vIiM-EqnHoJc8c4cIBfS5e/exec';
     // ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲
 
+    /**
+     * Google Drive の共有リンクを直リンクまたはサムネイル用URLに変換する
+     * @param {string} url - 変換前のURL
+     * @param {boolean} asThumbnail - サムネイル用（サイズ1000px制限）に変換するかどうか
+     * @returns {string} 変換後のURL
+     */
+    function convertDriveUrl(url, asThumbnail = false) {
+      if (!url) return "";
+      let id = "";
+      if (url.includes("drive.google.com")) {
+        const fileDMatch = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+        if (fileDMatch) {
+          id = fileDMatch[1];
+        } else {
+          const openIdMatch = url.match(/[\?&]id=([a-zA-Z0-9_-]+)/);
+          if (openIdMatch) {
+            id = openIdMatch[1];
+          }
+        }
+      }
+      if (id) {
+        if (asThumbnail) {
+          return `https://drive.google.com/thumbnail?id=${id}&sz=w1000`;
+        }
+        return `https://drive.google.com/uc?export=view&id=${id}`;
+      }
+      return url;
+    }
+
     let config = {};
     let allShows = [];
     let selectedIds = [];
@@ -746,7 +775,8 @@
       document.getElementById('modal-fes-date').innerText = formatFesDate(config.displayDate);
 
       if (config.headerUrl) {
-        document.getElementById('header-bg').style.backgroundImage = `url('${config.headerUrl}')`;
+        const processedHeaderUrl = convertDriveUrl(config.headerUrl);
+        document.getElementById('header-bg').style.backgroundImage = `url('${processedHeaderUrl}')`;
       }
       document.getElementById('loading-msg').classList.add('hidden');
 
@@ -826,10 +856,7 @@
         const c = colors[index % colors.length];
         const columnHeight = (config.endHour - config.startHour + 1) * PIXELS_PER_HOUR + currentHeaderOffset;
 
-        let imageUrl = base["公演ビジュアルURL"];
-        if (imageUrl && imageUrl.includes("drive.google.com/uc?export=view&id=")) {
-          imageUrl = imageUrl.replace("uc?export=view&id=", "thumbnail?id=") + "&sz=w1000";
-        }
+        let imageUrl = convertDriveUrl(base["公演ビジュアルURL"], true);
 
         const isHeaderNoise = base["ノイズ演出"] === true || String(base["ノイズ演出"]).toUpperCase() === "TRUE";
 
