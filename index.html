@@ -473,7 +473,7 @@
       </div>
 
       <div id="capture-area"
-        class="bg-[#f9f4f1] p-7 relative overflow-hidden rounded-[2.5rem] shadow-2xl border-4 border-main flex-1 overflow-y-auto no-scrollbar">
+        class="bg-[#ffffff] p-7 relative overflow-hidden rounded-[2.5rem] shadow-2xl border-4 border-main flex-1 overflow-y-auto no-scrollbar">
 
         <div class="border-b-2 border-dashed border-accent pb-5 mb-6 relative z-10 text-center">
           <div id="modal-fes-title" class="hidden">---</div>
@@ -800,11 +800,22 @@
 
       // タイプフィルターの生成
       const filterContainer = document.getElementById('filter-buttons-container');
-      filterContainer.innerHTML = `
-          <button onclick="applyTypeFilter('ALL')" id="filter-btn-ALL" class="filter-btn active-filter bg-main text-white shadow-md px-3 py-2.5 md:px-4 rounded-full text-[11px] font-black transition-all whitespace-nowrap">すべて</button>
-          <button onclick="applyTypeFilter('事前予約')" id="filter-btn-PRE" class="filter-btn text-slate-500 hover:bg-white/60 px-3 py-2.5 md:px-4 rounded-full text-[11px] font-black transition-all whitespace-nowrap">事前予約</button>
-          <button onclick="applyTypeFilter('当日受付(ファミレス式)')" id="filter-btn-DAY" class="filter-btn text-slate-500 hover:bg-white/60 px-3 py-2.5 md:px-4 rounded-full text-[11px] font-black transition-all whitespace-nowrap">当日受付</button>
-        `;
+      const hasDayShow = allShows.some(s => {
+        const type = s["予約形式"] || "";
+        return type.includes("当日受付") || type.startsWith("当日");
+      });
+
+      if (hasDayShow) {
+        filterContainer.innerHTML = `
+            <button onclick="applyTypeFilter('ALL')" id="filter-btn-ALL" class="filter-btn active-filter bg-main text-white shadow-md px-3 py-2.5 md:px-4 rounded-full text-[11px] font-black transition-all whitespace-nowrap">すべて</button>
+            <button onclick="applyTypeFilter('事前予約')" id="filter-btn-PRE" class="filter-btn text-slate-500 hover:bg-white/60 px-3 py-2.5 md:px-4 rounded-full text-[11px] font-black transition-all whitespace-nowrap">事前予約</button>
+            <button onclick="applyTypeFilter('当日受付(ファミレス式)')" id="filter-btn-DAY" class="filter-btn text-slate-500 hover:bg-white/60 px-3 py-2.5 md:px-4 rounded-full text-[11px] font-black transition-all whitespace-nowrap">当日受付</button>
+          `;
+        filterContainer.classList.remove('hidden');
+      } else {
+        filterContainer.innerHTML = '';
+        filterContainer.classList.add('hidden');
+      }
 
       const axis = document.getElementById('time-axis');
       axis.innerHTML = '';
